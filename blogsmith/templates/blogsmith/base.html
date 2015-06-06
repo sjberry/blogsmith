@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>{% load staticfiles %}
+		<meta charset="utf-8"/>
+
+		<title>{{ title|default:'Blogsmith' }}</title>
+		{% block meta %}{% endblock %}
+
+		<script type="text/javascript" src="https://code.jquery.com/jquery-latest.min.js"></script>
+		{% block static %}{% endblock %}
+	</head>
+
+	<body>
+		{% block content %}{% endblock %}
+	</body>
+</html>

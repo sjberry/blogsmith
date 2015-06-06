@@ -1,0 +1,30 @@
+{% extends 'blogsmith/template.html' %}
+
+{% block content %}
+<section>
+	<form action="{{ form_url }}" method="POST">
+		{% csrf_token %}
+		<div>
+			<input type="text" name="title" placeholder="Title" value="{{ form.title.value }}" />
+			{{ form.title.errors }}
+		</div>
+		<div>
+			<input type="text" placeholder="Slug" value="{{ form.title.value|slugify }}" disabled />
+		</div>
+		<div>
+			<input type="date" name="posted" value="{{ form.posted.value|date:'Y-m-d' }}" />
+			{{ form.posted.errors }}
+		</div>
+		<div>
+			<input type="text" name="tags" value="{{ form.tags.value }}" />
+			{{ form.tags.errors }}
+		</div>
+		<div>
+			<textarea name="content" cols="80" rows="{{ row_count|default:35 }}" style="font-family: 'Courier New';">{{ form.content.value }}</textarea>
+			{{ form.content.errors }}
+		</div>
+		{{ form.non_field_errors }}
+		<input type="submit" value="Save"/>
+	</form>
+</section>
+{% endblock %}
