@@ -62,7 +62,7 @@ class Command(BaseCommand):
                 )
                 self.stdout.write('Publishing `{0}` to db.'.format(slug))
 
-            self.stdout.write('Posted => {1}'.format(posted))
+            self.stdout.write('Posted => {0}'.format(posted))
             self.stdout.write('Tags => {0}'.format(tags))
             self.stdout.write('\n')
 
