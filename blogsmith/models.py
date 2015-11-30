@@ -17,10 +17,11 @@ class Article(models.Model):
     title = models.CharField(blank=False, max_length=120, unique=True)
     slug = models.CharField(blank=False, db_index=True, max_length=120, unique=True)
     content = models.FileField(storage=fs)
-    revision = models.CharField(blank=True, max_length=50)
-    posted = models.DateTimeField(blank=True)
-    updated = models.DateTimeField(auto_now=True)
-    is_draft = models.BooleanField(default=False)
+    remote_path = models.CharField(blank=True, db_index=True, max_length=255)
+    version = models.CharField(blank=True, db_index=True, max_length=50)
+    posted = models.DateTimeField(blank=True, db_index=True)
+    updated = models.DateTimeField(auto_now=True, db_index=True)
+    is_draft = models.BooleanField(db_index=True, default=False)
 
     tags = models.ManyToManyField('Tag', related_name='articles')
 

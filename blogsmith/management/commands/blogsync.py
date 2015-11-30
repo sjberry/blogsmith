@@ -7,14 +7,17 @@ from django.core.management.base import BaseCommand
 from django.utils.text import slugify
 
 from blogsmith import client
+from blogsmith.localization import localize
 from blogsmith.models import Article
 
 
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
-        filenames = client.get_file_names('/')
+        # TODO: Delete articles if they've been removed from dropbox. We shouldn't have to rely 100% on the webhook for this.
+        for filename, version in client.get_files('/'):
+            if Article.objects.filter(remote_path__exact=filename, version=version).exists():
+                continue
 
-        for filename in filenames:
             name, ext = os.path.splitext(filename)
 
             if ext != '.md':
@@ -25,6 +28,7 @@ class Command(BaseCommand):
             posted = None
             tags = []
 
+            # TODO: Support passing in the hash in case nothing has changed and handling 304 responses.
             file, metadata = client.get_file_and_metadata(filename)
 
             with file:
@@ -40,7 +44,7 @@ class Command(BaseCommand):
                     if key == 'title':
                         title = value
                     elif key == 'date':
-                        posted = datetime.strptime(value.strip(), '%m/%d/%Y')
+                        posted = localize(datetime.strptime(value.strip(), '%m/%d/%Y'))
                     elif key == 'tags':
                         tags = re.split(r',\s*', value.strip())
                 else:
@@ -53,13 +57,19 @@ class Command(BaseCommand):
                 article = Article.objects.get(slug__exact=slug)
                 article.title = title
                 article.posted = posted
+                article.remote_path = filename
+                article.version = version
+
                 self.stdout.write('Updating `{0}` in db.'.format(slug))
             except Article.DoesNotExist:
                 article = Article(
                     title=title,
                     slug=slug,
-                    posted=posted
+                    posted=posted,
+                    remote_path=filename,
+                    version=version
                 )
+
                 self.stdout.write('Publishing `{0}` to db.'.format(slug))
 
             self.stdout.write('Posted => {0}'.format(posted))
